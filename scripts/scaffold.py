@@ -336,13 +336,17 @@ def scaffold(
         ))
 
     # 7. References — shared docs that agents read at runtime.
+    # Only copy files that agents actually need during work (not human-facing docs).
+    AGENT_REFERENCES = ["plan-schema.md"]
     references_dir = skill_dir / "references"
     if references_dir.is_dir():
-        for ref_file in sorted(references_dir.glob("*.md")):
-            jobs.append((
-                ref_file,
-                target / ".claude" / "references" / ref_file.name,
-            ))
+        for ref_name in AGENT_REFERENCES:
+            ref_file = references_dir / ref_name
+            if ref_file.exists():
+                jobs.append((
+                    ref_file,
+                    target / ".claude" / "references" / ref_name,
+                ))
 
     # 7. Execute jobs.
     for src, dst in jobs:
