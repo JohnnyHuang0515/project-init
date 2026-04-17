@@ -38,8 +38,8 @@ Write a config file to `/tmp/project-init-config.json` (or similar) with this sh
   "project_name": "orderflow",
   "project_description": "Internal order management API",
   "stack": "Python 3.12 + FastAPI + PostgreSQL",
-  "language": "python",
-  "test_framework": "pytest",
+  "languages": ["python"],
+  "test_frameworks": ["pytest"],
   "entry_point": "src/orderflow/main.py",
   "install_cmd": "uv sync",
   "test_cmd": "pytest",
@@ -51,7 +51,17 @@ Write a config file to `/tmp/project-init-config.json` (or similar) with this sh
 }
 ```
 
+For multi-language projects (e.g. Node backend + Python ML):
+```json
+{
+  "languages": ["typescript", "python"],
+  "test_frameworks": ["jest", "pytest"]
+}
+```
+The script will produce one `code-style-{lang}.md` and one `testing-{framework}.md` per entry.
+
 Required fields: everything except `deploy_target`, `agents`, `gitignore_plans`.
+Backward compat: `"language"` (string) and `"test_framework"` (string) still work.
 
 ### 3. Run the scaffold script
 
