@@ -20,7 +20,9 @@ Your core strength: picking the right review lens for this specific diff. Not ev
 
 ### 2. Read the intent
 
-Check the conversation for what the change is supposed to do. If unclear, read the commit message or ask. **Reviewing without intent is guessing.**
+Check for `PLAN.md` or `FIX_PLAN.md` first — if either exists, read it. The plan is the authoritative statement of what the change is supposed to do and what's explicitly out of scope. If unfamiliar with the plan structure, read `references/plan-schema.md`.
+
+If no plan exists, check the conversation or commit message. **Reviewing without intent is guessing.**
 
 ### 3. Read conventions
 

@@ -40,65 +40,14 @@ Don't proceed until clear.
 
 ### 3. Write PLAN.md
 
-```markdown
-# Plan: <feature name>
+Follow the exact schema defined in `references/plan-schema.md` (PLAN.md section).
+Read that file now if you haven't already — do not improvise the format.
 
-## Context
-<1–3 sentences: what this is, why we're building it.>
-
-## Goals
-- <specific, measurable outcome>
-
-## Non-goals
-- <explicit things we're NOT doing>
-
-## Approach
-
-<1–2 paragraphs on the approach and why — over alternatives.>
-
-### Alternatives considered
-- **<A>** — rejected because <reason>
-- **<B>** — rejected because <reason>
-
-(Only if there's a real choice. Don't invent alternatives.)
-
-## Design
-
-### Files changed
-- `path/to/new.py` — <what it contains>
-- `path/to/existing.py` — <what changes>
-
-### Data model / schema
-<only if applicable>
-
-### Public API
-<only if applicable — signatures, example I/O>
-
-### Technology choices
-<only if applicable — one-line justification each>
-
-## Implementation steps
-
-Ordered list for implementer. Each step should be independently reviewable.
-
-1. <step> (touches: file A)
-2. <step> (touches: file B)
-3. Write tests
-4. Update docs (if any)
-
-## Testing strategy
-
-- <what unit tests cover>
-- <integration tests, if any>
-
-## Risks and open questions
-
-- <risk or decision needing human input>
-
-## Out-of-scope follow-ups
-
-- <things noticed but not in this change>
-```
+Key requirements:
+- Set `Status: DRAFT` initially.
+- Fill in every section. No placeholder text like `<what changes>`.
+- **Non-goals** section is mandatory — forces scope clarity.
+- **Implementation steps** must be specific enough for implementer to follow without guessing.
 
 ## Fix mode
 
@@ -128,48 +77,14 @@ If only a symptom fix is possible, say so and explain why.
 
 ### 4. Write FIX_PLAN.md
 
-```markdown
-# Fix Plan: <short bug description>
+Follow the exact schema defined in `references/plan-schema.md` (FIX_PLAN.md section).
+Read that file now if you haven't already.
 
-## Symptoms
-<what user/test sees>
-
-## Reproduction
-<minimal steps — or "could not reproduce" with details>
-
-## Root cause
-
-<2–4 sentences. Cite file:line. Be specific about why the code fails for this input.>
-
-### How it got this way (optional)
-<e.g., "introduced in commit abc123 when Y refactored">
-
-## Proposed fix
-
-<the change. Cite file:line. Alternatives with trade-offs if any.>
-
-### Scope
-- `path/to/file.py` — <what changes>
-
-### Not fixing (out of scope)
-- <related issues noticed, tracked for later>
-
-## Regression test
-
-<test description. Must fail without fix and pass with it.>
-
-Test location: `tests/...`
-
-## Verification checklist
-
-- [ ] Regression test added
-- [ ] Test fails on current `main`, passes with fix
-- [ ] Existing tests still pass
-
-## Risk
-
-<what could go wrong with this fix — other consumers affected?>
-```
+Key requirements:
+- Set `Status: DRAFT` initially.
+- Root cause must cite `file:line` — not vague descriptions.
+- Regression test description must be specific enough to write without guessing.
+- Verification checklist must be filled in by implementer, not left blank.
 
 ## Self-review (both modes)
 

@@ -20,11 +20,14 @@ If the change isn't trivial and there's no plan → stop, route to `planner`. Do
 
 ### 1. Load the plan (if any)
 
-Read `PLAN.md` / `FIX_PLAN.md` fully before touching code. Understand:
-- What changes
-- In what order
-- What's explicitly out of scope
-- What tests are expected
+Read `PLAN.md` / `FIX_PLAN.md` fully before touching code. If unfamiliar with the structure, read `references/plan-schema.md` first.
+
+Key things to extract:
+- **Status** — must be `APPROVED` before proceeding. If `DRAFT`, stop and ask the human to approve first.
+- **Implementation steps** — execute these in order.
+- **Files changed** — use as a checklist; if you need to touch a file not listed, pause and flag it.
+- **Testing strategy** / **Regression test** — what tests to write.
+- **Non-goals** — what NOT to do, even if tempting.
 
 ### 2. Load conventions
 

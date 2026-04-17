@@ -6,13 +6,13 @@ Usage:
     python scaffold.py --config config.json [--target .] [--dry-run]
 
 The config JSON should have the shape shown in the example below.
-Example config:
+Example config (single language):
     {
         "project_name": "orderflow",
         "project_description": "Internal order management API",
         "stack": "Python 3.12 + FastAPI + PostgreSQL",
-        "language": "python",
-        "test_framework": "pytest",
+        "languages": ["python"],
+        "test_frameworks": ["pytest"],
         "entry_point": "src/orderflow/main.py",
         "install_cmd": "uv sync",
         "test_cmd": "pytest",
@@ -23,10 +23,27 @@ Example config:
         "gitignore_plans": true
     }
 
+Example config (multi-language: Node backend + Python ML):
+    {
+        "project_name": "myapp",
+        "project_description": "Node API with Python ML service",
+        "stack": "Node.js + Express + Python + FastAPI",
+        "languages": ["typescript", "python"],
+        "test_frameworks": ["jest", "pytest"],
+        "entry_point": "src/index.ts",
+        "install_cmd": "npm install && uv sync",
+        "test_cmd": "npm test && pytest",
+        "lint_cmd": "eslint . && ruff check .",
+        "dev_cmd": "npm run dev"
+    }
+
 All fields are required except:
     - deploy_target (optional; omit to skip the deploy skill)
     - agents (defaults to all four)
     - gitignore_plans (defaults to true)
+
+Backward compat: "language" (string) and "test_framework" (string) still work,
+and are automatically converted to single-element lists.
 """
 
 from __future__ import annotations
@@ -88,14 +105,24 @@ def load_config(path: Path) -> dict:
     with path.open() as f:
         cfg = json.load(f)
 
+    # Backward compat: "language"/"test_framework" (strings) → lists.
+    if "language" in cfg and "languages" not in cfg:
+        cfg["languages"] = [cfg.pop("language")]
+    if "test_framework" in cfg and "test_frameworks" not in cfg:
+        cfg["test_frameworks"] = [cfg.pop("test_framework")]
+
     required = [
-        "project_name", "project_description", "stack", "language",
-        "test_framework", "entry_point",
+        "project_name", "project_description", "stack", "languages",
+        "test_frameworks", "entry_point",
         "install_cmd", "test_cmd", "lint_cmd", "dev_cmd",
     ]
     missing = [k for k in required if k not in cfg or not cfg[k]]
     if missing:
         raise ValueError(f"Config missing required fields: {missing}")
+
+    # Normalise to lowercase lists.
+    cfg["languages"] = [l.lower() for l in cfg["languages"]]
+    cfg["test_frameworks"] = [f.lower() for f in cfg["test_frameworks"]]
 
     cfg.setdefault("agents", DEFAULT_AGENTS)
     cfg.setdefault("gitignore_plans", True)
@@ -113,29 +140,36 @@ def load_config(path: Path) -> dict:
 def build_replacements(cfg: dict) -> dict:
     """Build the {{PLACEHOLDER}} -> value mapping."""
     deploy_target = cfg.get("deploy_target")
+    languages = cfg["languages"]
+    primary_lang = languages[0]  # 用第一個語言決定 indent 等風格
+
     return {
         "PROJECT_NAME": cfg["project_name"],
         "PROJECT_DESCRIPTION": cfg["project_description"],
         "STACK": cfg["stack"],
-        "TEST_FRAMEWORK": cfg["test_framework"],
+        "TEST_FRAMEWORK": ", ".join(cfg["test_frameworks"]),
         "ENTRY_POINT": cfg["entry_point"],
         "INSTALL_CMD": cfg["install_cmd"],
         "TEST_CMD": cfg["test_cmd"],
         "LINT_CMD": cfg["lint_cmd"],
         "DEV_CMD": cfg["dev_cmd"],
-        "LANGUAGE": cfg["language"],
+        "LANGUAGE": ", ".join(languages),
         "DEPLOY_TARGET": deploy_target or "",
         "BUILD_CMD": cfg.get("build_cmd", cfg["install_cmd"]),
         "DEPLOY_CMD": cfg.get("deploy_cmd", "# TODO: fill in deploy command"),
         "TEST_ONE_CMD": f"{cfg['test_cmd']} <path>",
-        "COVERAGE_CMD": f"{cfg['test_cmd']} --cov" if "pytest" in cfg["test_cmd"] else f"{cfg['test_cmd']} -- --coverage",
+        "COVERAGE_CMD": (
+            f"{cfg['test_cmd']} --cov"
+            if "pytest" in cfg["test_cmd"]
+            else f"{cfg['test_cmd']} -- --coverage"
+        ),
         "FUNCTION_NAMING": "see existing code",
         "TYPE_NAMING": "see existing code",
         "CONSTANT_NAMING": "see existing code",
         "FILE_NAMING": "see existing code",
         "FORMATTER": "see existing code",
         "LINE_LENGTH": "100",
-        "INDENT": "4 spaces" if cfg["language"] == "python" else "2 spaces",
+        "INDENT": "4 spaces" if primary_lang == "python" else "2 spaces",
         "DEPLOY_SKILL_LINE": (
             f"- `deploy` — deployment workflow for {deploy_target}."
             if deploy_target else ""
@@ -222,6 +256,7 @@ def check_existing_files(target: Path) -> list[Path]:
         target / ".claude" / "agents",
         target / ".claude" / "rules",
         target / ".claude" / "skills",
+        target / ".claude" / "references",
     ]
     return [p for p in candidates if p.exists()]
 
@@ -257,21 +292,30 @@ def scaffold(
          target / ".claude" / "rules" / "api-conventions.md"),
     ]
 
-    # 3. Language-specific code-style.
-    lang = cfg["language"].lower()
-    style_template = LANG_TEMPLATES.get(lang, "code-style-generic.md")
-    jobs.append((
-        templates_dir / "rules" / style_template,
-        target / ".claude" / "rules" / "code-style.md",
-    ))
+    # 3. Language-specific code-style — one file per language.
+    for lang in cfg["languages"]:
+        style_template = LANG_TEMPLATES.get(lang, "code-style-generic.md")
+        # Single language → code-style.md, multi → code-style-python.md etc.
+        if len(cfg["languages"]) == 1:
+            dst_name = "code-style.md"
+        else:
+            dst_name = f"code-style-{lang}.md"
+        jobs.append((
+            templates_dir / "rules" / style_template,
+            target / ".claude" / "rules" / dst_name,
+        ))
 
-    # 4. Framework-specific testing rules.
-    framework = cfg["test_framework"].lower()
-    test_template = TEST_TEMPLATES.get(framework, "testing-generic.md")
-    jobs.append((
-        templates_dir / "rules" / test_template,
-        target / ".claude" / "rules" / "testing.md",
-    ))
+    # 4. Framework-specific testing rules — one file per framework.
+    for framework in cfg["test_frameworks"]:
+        test_template = TEST_TEMPLATES.get(framework, "testing-generic.md")
+        if len(cfg["test_frameworks"]) == 1:
+            dst_name = "testing.md"
+        else:
+            dst_name = f"testing-{framework}.md"
+        jobs.append((
+            templates_dir / "rules" / test_template,
+            target / ".claude" / "rules" / dst_name,
+        ))
 
     # 5. Bundled skills.
     jobs.append((
@@ -290,6 +334,15 @@ def scaffold(
             templates_dir / "agents" / f"{agent_name}.md",
             target / ".claude" / "agents" / f"{agent_name}.md",
         ))
+
+    # 7. References — shared docs that agents read at runtime.
+    references_dir = skill_dir / "references"
+    if references_dir.is_dir():
+        for ref_file in sorted(references_dir.glob("*.md")):
+            jobs.append((
+                ref_file,
+                target / ".claude" / "references" / ref_file.name,
+            ))
 
     # 7. Execute jobs.
     for src, dst in jobs:
