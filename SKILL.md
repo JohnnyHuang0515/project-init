@@ -83,10 +83,12 @@ The script reads templates from `assets/templates/`, substitutes `{{PLACEHOLDER}
 
 ## When the script fails
 
-- **"Existing Claude files detected"** → ask the user whether to overwrite; if yes, add `--force`.
+- **"Existing Claude files detected"** → the script found files it would overwrite (e.g., a previous scaffold's `CLAUDE.md`, or existing `.claude/agents/`). Note: `.claude/settings.local.json` does NOT trigger this — it belongs to Claude Code and is left alone. Ask the user whether to overwrite; if yes, add `--force`.
 - **"Template not found"** → the skill is broken; tell the user to reinstall.
 - **"VALIDATION FAILED — unreplaced placeholders"** → rare; report the specific placeholders to the user and ask what they should be (the script will have written files with the raw `{{FOO}}` still in them).
 - **"Config missing required fields"** → you forgot a field; fix the JSON and retry.
+
+**Important:** if the script fails for any reason, do NOT fall back to manually creating files one by one — that defeats the purpose. Fix the actual problem and rerun the script.
 
 ## References
 

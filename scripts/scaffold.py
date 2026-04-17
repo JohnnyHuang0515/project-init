@@ -210,11 +210,18 @@ def update_gitignore(
 
 
 def check_existing_files(target: Path) -> list[Path]:
-    """Return list of Claude-related files/dirs that already exist at target."""
+    """Return list of paths we're about to write that already exist.
+
+    Only flags paths that THIS script produces — not other things that may
+    live under .claude/ (e.g., settings.local.json, which Claude Code itself
+    creates and which is unrelated to our scaffolding).
+    """
     candidates = [
         target / "CLAUDE.md",
         target / "CLAUDE.local.md",
-        target / ".claude",
+        target / ".claude" / "agents",
+        target / ".claude" / "rules",
+        target / ".claude" / "skills",
     ]
     return [p for p in candidates if p.exists()]
 
