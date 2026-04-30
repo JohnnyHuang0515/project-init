@@ -75,7 +75,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **Rules:** see `.claude/rules/` (code-style, testing, api-conventions)
 
-**Agents:** for non-trivial work, use `planner` → human approves → `implementer` → `reviewer`. Trivial changes skip the pipeline.
+**Agents:** for non-trivial work, use `planner` → human approves → `tester` → `implementer` → `reviewer`. Trivial changes skip the pipeline.
 
 <!-- TODO:
 - [ ] Describe repo layout if non-obvious (src/, tests/, etc.)

@@ -53,8 +53,7 @@ def test_length(input, expected):
 ## Mocking
 
 - Use `pytest-mock`'s `mocker` fixture (preferred) or `unittest.mock.patch`.
-- Mock at the boundary, not in the middle of your code.
-- Prefer fake implementations over MagicMock when the interface is small.
+- For mock strategy (what to mock, when, boundary rules), see `.claude/references/testing-tdd.md`.
 
 ## Markers
 

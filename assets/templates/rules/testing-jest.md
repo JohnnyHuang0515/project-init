@@ -49,9 +49,9 @@ describe("Cart", () => {
 
 ## Mocking
 
-- Prefer dependency injection over `jest.mock`/`vi.mock` when possible.
-- When you must mock a module, mock at the module boundary, not individual functions.
+- Use `jest.mock()` / `vi.mock()` to mock modules; prefer `vi.spyOn()` for partial mocks.
 - Always restore mocks: `afterEach(() => vi.restoreAllMocks())` or use `mockReset` config.
+- For mock strategy (what to mock, when, boundary rules), see `.claude/references/testing-tdd.md`.
 
 ## React Testing (if applicable)
 

@@ -24,7 +24,7 @@ Keep it tight. Required info:
 
 Optional:
 - **Deploy target** — e.g. "Fly.io", "Vercel". Omit to skip the deploy skill.
-- **Agents** — default: all four (`planner`, `implementer`, `reviewer`, `researcher`). Valid names are only these four; don't invent new ones.
+- **Agents** — default: all five (`planner`, `tester`, `implementer`, `reviewer`, `researcher`). Valid names are only these five; don't invent new ones.
 - **gitignore_plans** — whether to gitignore `PLAN.md` / `FIX_PLAN.md` (default: true).
 
 Use `ask_user_input_v0` if available (mobile-friendly). Otherwise ask in prose. **Don't interrogate** — skip anything the user already told you.
@@ -46,7 +46,7 @@ Write a config file to `/tmp/project-init-config.json` (or similar) with this sh
   "lint_cmd": "ruff check .",
   "dev_cmd": "uvicorn src.orderflow.main:app --reload",
   "deploy_target": "Fly.io",
-  "agents": ["planner", "implementer", "reviewer", "researcher"],
+  "agents": ["planner", "tester", "implementer", "reviewer", "researcher"],
   "gitignore_plans": true
 }
 ```

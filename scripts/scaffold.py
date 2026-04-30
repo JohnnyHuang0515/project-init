@@ -19,7 +19,7 @@ Example config (single language):
         "lint_cmd": "ruff check .",
         "dev_cmd": "uvicorn src.orderflow.main:app --reload",
         "deploy_target": "Fly.io",
-        "agents": ["planner", "implementer", "reviewer", "researcher"],
+        "agents": ["planner", "tester", "implementer", "reviewer", "researcher"],
         "gitignore_plans": true
     }
 
@@ -71,7 +71,7 @@ TEST_TEMPLATES = {
     "mocha": "testing-jest.md",
 }
 
-DEFAULT_AGENTS = ["planner", "implementer", "reviewer", "researcher"]
+DEFAULT_AGENTS = ["planner", "tester", "implementer", "reviewer", "researcher"]
 
 GITIGNORE_CLAUDE_BLOCK = """\
 # Claude Code personal overrides
@@ -337,7 +337,7 @@ def scaffold(
 
     # 7. References — shared docs that agents read at runtime.
     # Only copy files that agents actually need during work (not human-facing docs).
-    AGENT_REFERENCES = ["plan-schema.md"]
+    AGENT_REFERENCES = ["plan-schema.md", "testing-tdd.md"]
     references_dir = skill_dir / "references"
     if references_dir.is_dir():
         for ref_name in AGENT_REFERENCES:
